@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kuis Sistem Saraf</title>
+  <style>
+    body {
+      background-color: #f0f8ff;
+      font-family: sans-serif;
+      color: #003366;
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #004080;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+    .question {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #ffffff;
+      border: 2px solid #cce0ff;
+      border-radius: 10px;
+    }
+    button {
+      background-color: #004080;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      margin-top: 20px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #0059b3;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Kuis Sistem Saraf</h1>
+  <form id="quizForm">
+    <label for="nama">Nama:</label>
+    <input type="text" id="nama" name="nama" required />
+
+    <label for="kelas">Kelas:</label>
+    <input type="text" id="kelas" name="kelas" required />
+
+    <div class="question">
+      <p>1. Apa fungsi utama sumsum tulang belakang?</p>
+      <label><input type="radio" name="q1" value="A" required/> A. Menyaring informasi dari otak</label>
+      <label><input type="radio" name="q1" value="B"/> B. Mengatur detak jantung</label>
+      <label><input type="radio" name="q1" value="C"/> C. Menghubungkan otak dengan seluruh tubuh</label>
+      <label><input type="radio" name="q1" value="D"/> D. Mengontrol hormon tubuh</label>
+      <label><input type="radio" name="q1" value="E"/> E. Meningkatkan koordinasi otot</label>
+    </div>
+
+    <div class="question">
+      <p>2. Neuron motorik berfungsi untuk?</p>
+      <label><input type="radio" name="q2" value="A" required/> A. Mengirimkan impuls ke otak</label>
+      <label><input type="radio" name="q2" value="B"/> B. Menerima rangsangan dari luar</label>
+      <label><input type="radio" name="q2" value="C"/> C. Meneruskan impuls ke otot atau kelenjar</label>
+      <label><input type="radio" name="q2" value="D"/> D. Menyimpan informasi memori</label>
+      <label><input type="radio" name="q2" value="E"/> E. Menyampaikan hormon</label>
+    </div>
+
+    <div class="question">
+      <p>3. Bagian otak yang mengatur keseimbangan tubuh adalah?</p>
+      <label><input type="radio" name="q3" value="A" required/> A. Medula oblongata</label>
+      <label><input type="radio" name="q3" value="B"/> B. Serebrum</label>
+      <label><input type="radio" name="q3" value="C"/> C. Talamus</label>
+      <label><input type="radio" name="q3" value="D"/> D. Serebelum</label>
+      <label><input type="radio" name="q3" value="E"/> E. Hipotalamus</label>
+    </div>
+
+    <div class="question">
+      <p>4. Refleks lutut terjadi karena?</p>
+      <label><input type="radio" name="q4" value="A" required/> A. Kerja saraf pusat</label>
+      <label><input type="radio" name="q4" value="B"/> B. Perintah dari otak besar</label>
+      <label><input type="radio" name="q4" value="C"/> C. Kerja otot sadar</label>
+      <label><input type="radio" name="q4" value="D"/> D. Refleks tanpa campur tangan otak</label>
+      <label><input type="radio" name="q4" value="E"/> E. Respon hormon tubuh</label>
+    </div>
+
+    <div class="question">
+      <p>5. Apa yang dimaksud dengan sinapsis?</p>
+      <label><input type="radio" name="q5" value="A" required/> A. Organ pengatur keseimbangan</label>
+      <label><input type="radio" name="q5" value="B"/> B. Saraf pengatur hormon</label>
+      <label><input type="radio" name="q5" value="C"/> C. Celah antar dua neuron</label>
+      <label><input type="radio" name="q5" value="D"/> D. Bagian dari sumsum tulang belakang</label>
+      <label><input type="radio" name="q5" value="E"/> E. Bagian dari otot lurik</label>
+    </div>
+
+    <button type="submit">Kirim Jawaban</button>
+  </form>
+
+  <div id="hasil" class="hidden"></div>
+
+  <script>
+    const kunci = { q1: "C", q2: "C", q3: "D", q4: "D", q5: "C" };
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (localStorage.getItem("sudahMengisi")) {
+        document.getElementById("quizForm").classList.add("hidden");
+        document.getElementById("hasil").classList.remove("hidden");
+        document.getElementById("hasil").innerText = "Anda sudah pernah mengerjakan kuis ini.";
+        return;
+      }
+
+      document.getElementById("quizForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        let score = 0;
+        Object.keys(kunci).forEach((key) => {
+          const jawab = document.querySelector(`input[name="${key}"]:checked`);
+          if (jawab && jawab.value === kunci[key]) score++;
+        });
+
+        const nama = document.getElementById("nama").value;
+        const kelas = document.getElementById("kelas").value;
+
+        // Simpan ke spreadsheet
+        await fetch("YOUR_WEBAPP_URL", {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nama, kelas, score })
+        });
+
+        localStorage.setItem("sudahMengisi", "true");
+        document.getElementById("quizForm").classList.add("hidden");
+        document.getElementById("hasil").classList.remove("hidden");
+        document.getElementById("hasil").innerText = `Terima kasih, ${nama}. Nilai Anda: ${score}/5`;
+      });
+    });
+  </script>
+</body>
+</html>
